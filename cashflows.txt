@@ -1,0 +1,72 @@
+USE [CTS CS SIT]
+GO
+/****** Object:  StoredProcedure [trd].[StructuredDealCashFlowsProc]    Script Date: 15/12/2020 13:09:43 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [trd].[StructuredDealCashFlowsProc]
+	@_Operation char (1)
+	,@Direction int
+	,@EndDate datetime
+	,@FinalRate CTS_Decimal
+	,@FixingDate datetime
+	,@Id bigint
+	,@MarginAddon CTS_Decimal
+	,@MarginMultiplier CTS_Decimal
+	,@Modified datetime
+	,@PaymentAmount CTS_Decimal
+	,@PaymentDate datetime
+	,@Principal CTS_Decimal
+	,@StartDate datetime
+	,@StructureDealId bigint
+	,@StructureDealVersion int
+	,@Timestamp uniqueidentifier OUTPUT
+	,@Type int
+	,@UserId int
+	AS
+	BEGIN
+
+		------------------------------------------------
+		-- >>> Automatically generated DA procedure! <<< 
+		-- >>> Don't change the procedure manually!  <<<
+		-- >>> Generated: 2020-12-09 15:27:54        <<<
+		------------------------------------------------
+				
+		DECLARE @old_timestamp uniqueidentifier
+		SET @old_timestamp = @Timestamp
+		SET @Timestamp = (SELECT [dbo].[NewTimestamp] (@Timestamp))
+
+		IF @_Operation = 'I' 
+		BEGIN
+			INSERT INTO [trd].[StructuredDealCashFlows] ([Id], [StructureDealId], [StructureDealVersion], [Type], [Direction], [StartDate], [EndDate], [PaymentDate], [Principal], [FixingDate], [MarginAddon], [MarginMultiplier], [FinalRate], [PaymentAmount], [UserId], [Modified], [Timestamp])
+				VALUES(@Id, @StructureDealId, @StructureDealVersion, @Type, @Direction, @StartDate, @EndDate, @PaymentDate, @Principal, @FixingDate, @MarginAddon, @MarginMultiplier, @FinalRate, @PaymentAmount, @UserId, @Modified, @Timestamp)
+			INSERT INTO [trd].[StructuredDealCashFlowsArch] ([Id], [StructureDealId], [StructureDealVersion], [Type], [Direction], [StartDate], [EndDate], [PaymentDate], [Principal], [FixingDate], [MarginAddon], [MarginMultiplier], [FinalRate], [PaymentAmount], [UserId], [Modified], [Timestamp])
+				VALUES(@Id, @StructureDealId, @StructureDealVersion, @Type, @Direction, @StartDate, @EndDate, @PaymentDate, @Principal, @FixingDate, @MarginAddon, @MarginMultiplier, @FinalRate, @PaymentAmount, @UserId, @Modified, @Timestamp)
+		END
+
+		IF @_Operation = 'U' 
+		BEGIN
+			UPDATE [trd].[StructuredDealCashFlows]
+				SET [StructureDealId] = @StructureDealId, [StructureDealVersion] = @StructureDealVersion, [Type] = @Type, [Direction] = @Direction, [StartDate] = @StartDate, [EndDate] = @EndDate, [PaymentDate] = @PaymentDate, [Principal] = @Principal, [FixingDate] = @FixingDate, [MarginAddon] = @MarginAddon, [MarginMultiplier] = @MarginMultiplier, [FinalRate] = @FinalRate, [PaymentAmount] = @PaymentAmount, [UserId] = @UserId, [Modified] = @Modified, [Timestamp] = @Timestamp
+				WHERE Id = @Id AND Timestamp = @old_timestamp
+			IF @@ROWCOUNT = 0
+			BEGIN
+				RAISERROR ('No row updated. Row was deleted or modified by another user.', 15, 1)
+				RETURN
+			END
+			INSERT INTO [trd].[StructuredDealCashFlowsArch] ([Id], [StructureDealId], [StructureDealVersion], [Type], [Direction], [StartDate], [EndDate], [PaymentDate], [Principal], [FixingDate], [MarginAddon], [MarginMultiplier], [FinalRate], [PaymentAmount], [UserId], [Modified], [Timestamp])
+				VALUES(@Id, @StructureDealId, @StructureDealVersion, @Type, @Direction, @StartDate, @EndDate, @PaymentDate, @Principal, @FixingDate, @MarginAddon, @MarginMultiplier, @FinalRate, @PaymentAmount, @UserId, @Modified, @Timestamp)
+		END
+
+		IF @_Operation = 'D' 
+			BEGIN
+			DELETE FROM [trd].[StructuredDealCashFlows] WHERE Id = @Id AND Timestamp = @old_timestamp
+			IF @@ROWCOUNT = 0
+				BEGIN
+					RAISERROR ('No row deleted. Row was deleted or modified by another user.', 15, 2)
+					RETURN
+				END
+			DELETE FROM [trd].[StructuredDealCashFlowsArch] WHERE Id = @Id
+		END
+END

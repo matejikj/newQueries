@@ -1,0 +1,59 @@
+USE [CTS CS SIT]
+GO
+/****** Object:  StoredProcedure [trd].[StructuredDealRelationsProc]    Script Date: 15/12/2020 13:09:41 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [trd].[StructuredDealRelationsProc]
+	@_Operation char (1)
+	,@EntityId int
+	,@EntityType int
+	,@Id bigint
+	,@Modified datetime
+	,@StructuredDealId bigint
+	,@Timestamp uniqueidentifier OUTPUT
+	,@TradeId int
+	,@UserId int
+	,@State int
+	AS
+	BEGIN
+
+		------------------------------------------------
+		-- >>> Automatically generated DA procedure! <<< 
+		-- >>> Don't change the procedure manually!  <<<
+		-- >>> Generated: 2020-07-02 13:48:21        <<<
+		------------------------------------------------
+				
+		DECLARE @old_timestamp uniqueidentifier
+		SET @old_timestamp = @Timestamp
+		SET @Timestamp = (SELECT [dbo].[NewTimestamp] (@Timestamp))
+
+		IF @_Operation = 'I' 
+		BEGIN
+			INSERT INTO [trd].[StructuredDealRelations] ([Id], [State], [StructuredDealId], [EntityType], [EntityId], [UserId], [Modified], [Timestamp], [TradeId])
+				VALUES(@Id, @State, @StructuredDealId, @EntityType, @EntityId, @UserId, @Modified, @Timestamp, @TradeId)
+		END
+
+		IF @_Operation = 'U' 
+		BEGIN
+			UPDATE [trd].[StructuredDealRelations]
+				SET [State] = @State, [StructuredDealId] = @StructuredDealId, [EntityType] = @EntityType, [EntityId] = @EntityId, [UserId] = @UserId, [Modified] = @Modified, [Timestamp] = @Timestamp, [TradeId] = @TradeId
+				WHERE Id = @Id AND Timestamp = @old_timestamp
+			IF @@ROWCOUNT = 0
+			BEGIN
+				RAISERROR ('No row updated. Row was deleted or modified by another user.', 15, 1)
+				RETURN
+			END
+		END
+
+		IF @_Operation = 'D' 
+			BEGIN
+			DELETE FROM [trd].[StructuredDealRelations] WHERE Id = @Id AND Timestamp = @old_timestamp
+			IF @@ROWCOUNT = 0
+				BEGIN
+					RAISERROR ('No row deleted. Row was deleted or modified by another user.', 15, 2)
+					RETURN
+				END
+		END
+END

@@ -1,0 +1,65 @@
+USE [CTS CS SIT]
+GO
+/****** Object:  StoredProcedure [trd].[StructuredDealSecurityFlowsProc]    Script Date: 15/12/2020 13:09:35 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [trd].[StructuredDealSecurityFlowsProc]
+	@_Operation char (1)
+	,@Direction int
+	,@Id bigint
+	,@InstrumentId int
+	,@Modified datetime
+	,@Quantity CTS_Decimal
+	,@SettlementDate datetime
+	,@StructureDealId bigint
+	,@StructureDealVersion int
+	,@Timestamp uniqueidentifier OUTPUT
+	,@UserId int
+	AS
+	BEGIN
+
+		------------------------------------------------
+		-- >>> Automatically generated DA procedure! <<< 
+		-- >>> Don't change the procedure manually!  <<<
+		-- >>> Generated: 2020-12-09 15:27:54        <<<
+		------------------------------------------------
+				
+		DECLARE @old_timestamp uniqueidentifier
+		SET @old_timestamp = @Timestamp
+		SET @Timestamp = (SELECT [dbo].[NewTimestamp] (@Timestamp))
+
+		IF @_Operation = 'I' 
+		BEGIN
+			INSERT INTO [trd].[StructuredDealSecurityFlows] ([Id], [StructureDealId], [StructureDealVersion], [Direction], [InstrumentId], [Quantity], [SettlementDate], [UserId], [Modified], [Timestamp])
+				VALUES(@Id, @StructureDealId, @StructureDealVersion, @Direction, @InstrumentId, @Quantity, @SettlementDate, @UserId, @Modified, @Timestamp)
+			INSERT INTO [trd].[StructuredDealSecurityFlowsArch] ([Id], [StructureDealId], [StructureDealVersion], [Direction], [InstrumentId], [Quantity], [SettlementDate], [UserId], [Modified], [Timestamp])
+				VALUES(@Id, @StructureDealId, @StructureDealVersion, @Direction, @InstrumentId, @Quantity, @SettlementDate, @UserId, @Modified, @Timestamp)
+		END
+
+		IF @_Operation = 'U' 
+		BEGIN
+			UPDATE [trd].[StructuredDealSecurityFlows]
+				SET [StructureDealId] = @StructureDealId, [StructureDealVersion] = @StructureDealVersion, [Direction] = @Direction, [InstrumentId] = @InstrumentId, [Quantity] = @Quantity, [SettlementDate] = @SettlementDate, [UserId] = @UserId, [Modified] = @Modified, [Timestamp] = @Timestamp
+				WHERE Id = @Id AND Timestamp = @old_timestamp
+			IF @@ROWCOUNT = 0
+			BEGIN
+				RAISERROR ('No row updated. Row was deleted or modified by another user.', 15, 1)
+				RETURN
+			END
+			INSERT INTO [trd].[StructuredDealSecurityFlowsArch] ([Id], [StructureDealId], [StructureDealVersion], [Direction], [InstrumentId], [Quantity], [SettlementDate], [UserId], [Modified], [Timestamp])
+				VALUES(@Id, @StructureDealId, @StructureDealVersion, @Direction, @InstrumentId, @Quantity, @SettlementDate, @UserId, @Modified, @Timestamp)
+		END
+
+		IF @_Operation = 'D' 
+			BEGIN
+			DELETE FROM [trd].[StructuredDealSecurityFlows] WHERE Id = @Id AND Timestamp = @old_timestamp
+			IF @@ROWCOUNT = 0
+				BEGIN
+					RAISERROR ('No row deleted. Row was deleted or modified by another user.', 15, 2)
+					RETURN
+				END
+			DELETE FROM [trd].[StructuredDealSecurityFlowsArch] WHERE Id = @Id
+		END
+END

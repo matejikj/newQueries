@@ -1,0 +1,73 @@
+USE [CTS CS SIT]
+GO
+/****** Object:  StoredProcedure [trd].[StructuredDealsProc]    Script Date: 15/12/2020 13:09:46 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER PROCEDURE [trd].[StructuredDealsProc]
+	@_Operation char (1)
+	,@CashRegisterAccountId int
+	,@ContractId int
+	,@CptyCashRegisterAccountId int
+	,@CptyId int
+	,@ExternalId varchar(64)
+	,@GeneralId varchar(64)
+	,@Id bigint
+	,@Modified datetime
+	,@PrivateNote varchar(max)
+	,@PublicNote varchar(max)
+	,@State int
+	,@Timestamp uniqueidentifier OUTPUT
+	,@TradeDate datetime
+	,@Type int
+	,@UserId int
+	,@Version int
+	AS
+	BEGIN
+
+		------------------------------------------------
+		-- >>> Automatically generated DA procedure! <<< 
+		-- >>> Don't change the procedure manually!  <<<
+		-- >>> Generated: 2020-12-09 15:27:54        <<<
+		------------------------------------------------
+				
+		DECLARE @old_timestamp uniqueidentifier
+		SET @old_timestamp = @Timestamp
+		SET @Timestamp = (SELECT [dbo].[NewTimestamp] (@Timestamp))
+
+		IF @_Operation = 'I' 
+		BEGIN
+			INSERT INTO [trd].[EntityReferences] (Id, Type) VALUES (@Id, 12800 /*StructuredDeals*/)
+			INSERT INTO [trd].[StructuredDeals] ([Id], [Version], [GeneralId], [Type], [State], [ExternalId], [PublicNote], [PrivateNote], [UserId], [Modified], [Timestamp], [TradeDate], [ContractId], [CptyId], [CashRegisterAccountId], [CptyCashRegisterAccountId])
+				VALUES(@Id, @Version, @GeneralId, @Type, @State, @ExternalId, @PublicNote, @PrivateNote, @UserId, @Modified, @Timestamp, @TradeDate, @ContractId, @CptyId, @CashRegisterAccountId, @CptyCashRegisterAccountId)
+			INSERT INTO [trd].[StructuredDealsArch] ([Id], [Version], [GeneralId], [Type], [State], [ExternalId], [PublicNote], [PrivateNote], [UserId], [Modified], [Timestamp], [TradeDate], [ContractId], [CptyId], [CashRegisterAccountId], [CptyCashRegisterAccountId])
+				VALUES(@Id, @Version, @GeneralId, @Type, @State, @ExternalId, @PublicNote, @PrivateNote, @UserId, @Modified, @Timestamp, @TradeDate, @ContractId, @CptyId, @CashRegisterAccountId, @CptyCashRegisterAccountId)
+		END
+
+		IF @_Operation = 'U' 
+		BEGIN
+			UPDATE [trd].[StructuredDeals]
+				SET [Version] = @Version, [GeneralId] = @GeneralId, [Type] = @Type, [State] = @State, [ExternalId] = @ExternalId, [PublicNote] = @PublicNote, [PrivateNote] = @PrivateNote, [UserId] = @UserId, [Modified] = @Modified, [Timestamp] = @Timestamp, [TradeDate] = @TradeDate, [ContractId] = @ContractId, [CptyId] = @CptyId, [CashRegisterAccountId] = @CashRegisterAccountId, [CptyCashRegisterAccountId] = @CptyCashRegisterAccountId
+				WHERE Id = @Id AND Timestamp = @old_timestamp
+			IF @@ROWCOUNT = 0
+			BEGIN
+				RAISERROR ('No row updated. Row was deleted or modified by another user.', 15, 1)
+				RETURN
+			END
+			INSERT INTO [trd].[StructuredDealsArch] ([Id], [Version], [GeneralId], [Type], [State], [ExternalId], [PublicNote], [PrivateNote], [UserId], [Modified], [Timestamp], [TradeDate], [ContractId], [CptyId], [CashRegisterAccountId], [CptyCashRegisterAccountId])
+				VALUES(@Id, @Version, @GeneralId, @Type, @State, @ExternalId, @PublicNote, @PrivateNote, @UserId, @Modified, @Timestamp, @TradeDate, @ContractId, @CptyId, @CashRegisterAccountId, @CptyCashRegisterAccountId)
+		END
+
+		IF @_Operation = 'D' 
+			BEGIN
+			DELETE FROM [trd].[StructuredDeals] WHERE Id = @Id AND Timestamp = @old_timestamp
+			IF @@ROWCOUNT = 0
+				BEGIN
+					RAISERROR ('No row deleted. Row was deleted or modified by another user.', 15, 2)
+					RETURN
+				END
+			DELETE FROM [trd].[StructuredDealsArch] WHERE Id = @Id
+			DELETE FROM [trd].[EntityReferences] WHERE Id = @Id AND Type = 12800 /*StructuredDeals*/
+		END
+END
